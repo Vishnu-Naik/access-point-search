@@ -1,0 +1,13 @@
+site_name: Feature Selection Docs
+site_description: Documentation for Feature Selection
+site_author: Vishnu Gangadhara Naik
+theme:
+  name: "material"
+  
+plugins:
+  - mkdocstrings
+
+nav:
+  - Feature Selector Docs: index.md
+  - Abstract Forecaster: abstract_forecaster.md
+  - Data Preprocessor: data_preprocessor.md
