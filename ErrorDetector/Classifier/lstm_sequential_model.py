@@ -15,14 +15,38 @@ from preprocessing.data_preprocessing import (
 from matplotlib import pyplot as plt
 
 
-class LSTMSequentialModel():
+class LSTMSequentialModel:
+    """
+    A class which build a multi-input multi-output LSTM model in sequential style.
+
+    This class contains the following functions:
+
+    1. `build_and_compile_model(self)` - Returns a compiled model.
+
+    For Example:
+
+    >>> lstm_model_generator = LSTMSequentialModel(num_features=1, n_epochs=32, callback_patience=3)
+    >>> lstm_model_generator
+    LSTMSequentialModel(num_features=1, n_epochs=32, callback_patience=3)
+
+    >>> lstm_model = lstm_model_generator.build_and_compile_model()
+
+    """
     def __init__(self, num_features, n_epochs=32, callback_patience=3):
         # self.model = self.build_and_compile_model(num_features)
         self.num_features = num_features
         self.n_epochs = n_epochs
         self.callback_patience = callback_patience
 
+    def __repr__(self):
+        return f'LSTMSequentialModel(num_features={self.num_features}, n_epochs={self.n_epochs}, callback_patience={self.callback_patience})'
+
     def build_and_compile_model(self):
+        """Build and compile the model.
+
+        Returns:
+            model: Compiled model.
+        """
         model = tf.keras.models.Sequential([
             # Shape [batch, time, features] => [batch, time, lstm_units]
             tf.keras.layers.LSTM(32, return_sequences=True),
@@ -35,7 +59,7 @@ class LSTMSequentialModel():
             tf.keras.layers.Dropout(0.3),
             # Shape => [batch, time, features]
             tf.keras.layers.Dense(units=self.num_features)
-        ])
+        ], name='LSTM_Sequential_Model')
 
         model.compile(loss=tf.keras.losses.MeanSquaredError(),
                       optimizer=tf.keras.optimizers.Adam(),
