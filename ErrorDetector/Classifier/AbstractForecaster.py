@@ -45,6 +45,13 @@ class AbstractForecaster:
         self.num_features = num_features
         self.time_steps_per_batch = time_steps_per_batch
 
+    def __repr__(self):
+        return f"Model: {self.model.name}\n" \
+                f"Number of epochs: {self.n_epochs}\n" \
+                f"Callback patience: {self.callback_patience}\n" \
+                f"Number of features: {self.num_features}\n" \
+                f"Time steps per batch: {self.time_steps_per_batch}\n"
+
     @staticmethod
     def predict(model, data):
         """Forecast for the given data.

@@ -39,7 +39,6 @@ class FeatureSelection:
         forecaster = AbstractForecaster(num_features=self.n_features)
         forecast_model_history, model = forecaster.train_model(self.dataset)
         self.model = model
-        self.problem_size = self.n_dims = np.sum([np.size(w) for w in self.model.get_weights()])
 
     def create_problem(self):
         ## 1. Define problem dictionary
