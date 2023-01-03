@@ -15,7 +15,8 @@ import matplotlib.pyplot as plt
 
 class Evaluator:
     # class for defining the evaluation metrics
-    def __init__(self, train_X, test_X, train_Y, test_Y, solution=None, classifier=None, draw_confusion_matrix=False, average="weighted"):
+    def __init__(self, train_X, test_X, train_Y, test_Y, solution=None, classifier=None, draw_confusion_matrix=False,
+                 average="weighted"):
         self.solution = solution
         if self.solution is None:
             self.solution = np.ones(train_X.shape[1])
@@ -46,17 +47,17 @@ class Evaluator:
         self.draw_confusion_matrix = draw_confusion_matrix
 
     def get_metrics(self):
-        ## Train on training set
+        # Train on training set
         self.clf.fit(self.X_train, self.y_train)
 
-        ## Test and get accuracy on testing set
+        # Test and get accuracy on testing set
         y_pred = self.clf.predict(self.X_test)
         accuracy = accuracy_score(self.y_test, y_pred)
         precision = precision_score(self.y_test, y_pred, average=self.average, zero_division=0)
         recall = recall_score(self.y_test, y_pred, average=self.average, zero_division=0)
         f1 = f1_score(self.y_test, y_pred, average=self.average)
 
-        ## Save confusion matrix
+        # Save confusion matrix
         if self.draw_confusion_matrix:
             plot_confusion_matrix(self.clf, self.X_test, self.y_test)
             plt.savefig('confusion_matrix.png')
@@ -69,3 +70,27 @@ class Evaluator:
             "recall": recall,
             "f1": f1
         }
+
+
+class DynamicEvaluator:
+    # class for defining the evaluation metrics
+    def __init__(self, train_x, test_x, train_y, test_y, solution=None, forecaster=None):
+        self.solution = solution
+        if self.solution is None:
+            self.solution = np.ones(train_x.shape[2])
+
+        # store the train and test features and labels
+        cols = np.flatnonzero(self.solution)
+        self.X_train = train_x[:, :, cols]
+        self.X_test = test_x[:, :, cols]
+        self.y_train = train_y
+        self.y_test = test_y
+
+        # set the classifier type
+        self.forecaster = forecaster
+        if self.forecaster is None:
+            print('\n[Error!] Please provide the forecaster to the Evaluator...\n')
+            raise Exception
+
+        # get the unique labels
+        self.n_labels = len(np.unique(train_y))

@@ -17,7 +17,6 @@ from sklearn.metrics import precision_score, recall_score, f1_score, plot_confus
 CSV_URL = 'https://raw.githubusercontent.com/jbrownlee/Datasets/master/pima-indians-diabetes.data.csv'
 
 
-
 class FeatureSelection:
 
     def __init__(self, dataset, epoch, pop_size):
@@ -28,17 +27,19 @@ class FeatureSelection:
         # self.n_inputs = self.X_train.shape[1]
         # self.model, self.problem_size, self.n_dims, self.problem = None, None, None, None
         # self.optimizer, self.solution, self.best_fit = None, None, None
+        self.model = None
         self.n_features = Config.NUM_FEATURES
         self.dataset = dataset
         self.epoch = epoch
         self.pop_size = pop_size
         self.problem = None
 
-    def create_network(self):
+    def get_forecaster(self):
         # create model
         forecaster = AbstractForecaster(num_features=self.n_features)
         forecast_model_history, model = forecaster.train_model(self.dataset)
         self.model = model
+        return forecaster
 
     def create_problem(self):
         ## 1. Define problem dictionary
@@ -56,21 +57,7 @@ class FeatureSelection:
 
     def get_metrics(self):
         ## Train on training set
-        self.clf.fit(self.X_train, self.y_train)
-
-        ## Test and get accuracy on testing set
-        y_pred = self.clf.predict(self.X_test)
-        accuracy = accuracy_score(self.y_test, y_pred)
-        precision = precision_score(self.y_test, y_pred, average=self.average, zero_division=0)
-        recall = recall_score(self.y_test, y_pred, average=self.average, zero_division=0)
-        f1 = f1_score(self.y_test, y_pred, average=self.average)
-
-        ## Save confusion matrix
-        if self.draw_confusion_matrix:
-            plot_confusion_matrix(self.clf, self.X_test, self.y_test)
-            plt.savefig('confusion_matrix.png')
-            plt.title('Confusion Matrix')
-            plt.show()
+        y_true, y_pred = forecaster.get_true_and_predicted_values(engine_timing_data_set.test)
 
         return {
             "accuracy": accuracy,
@@ -78,15 +65,16 @@ class FeatureSelection:
             "recall": recall,
             "f1": f1
         }
-    @staticmethod
-    def fitness_function(solution):
-        evaluator = Evaluator(train_X, test_X,
-                              train_Y, test_Y,
-                              solution, Config.CLASSIFIER,
-                              Config.DRAW_CONFUSION_MATRIX, Config.AVERAGE_METRIC)
-        metrics = FeatureSelection.get_metrics()
-        if Config.PRINT_ALL:
-            print(metrics)
+
+    def fitness_function(self, solution):
+        # evaluator = Evaluator(train_X, test_X,
+        #                       train_Y, test_Y,
+        #                       solution, Config.CLASSIFIER,
+        #                       Config.DRAW_CONFUSION_MATRIX, Config.AVERAGE_METRIC)
+        # metrics = FeatureSelection.get_metrics()
+        # if Config.PRINT_ALL:
+        #     print(metrics)
+        fore_caster = self.get_forecaster
         return list(metrics.values())
 
     def amend_position(position, lower, upper):
@@ -133,8 +121,6 @@ class FeatureSelection:
     #     yhat = np.argmax(yhat, axis=-1).astype('int')
     #     acc = accuracy_score(self.y_train, yhat)
     #     return acc
-
-
 
 
 def main():
