@@ -1,96 +1,80 @@
-#!/usr/bin/env python
-# Created by "Thieu" at 00:06, 22/05/2022 ----------%                                                                               
-#       Email: nguyenthieu2102@gmail.com            %                                                    
-#       Github: https://github.com/thieu1995        %                         
-# --------------------------------------------------%
 
-from sklearn.neighbors import KNeighborsClassifier as KNN
-from sklearn.ensemble import RandomForestClassifier as RF
-from sklearn.svm import SVC as SVM
-from sklearn.metrics import precision_score, recall_score, f1_score, plot_confusion_matrix, accuracy_score
-
+from ErrorDetector.Classifier.AbstractForecaster import AbstractForecaster
+from FeatureSelection.ExamineOptimizer.src.feature_selection_config import FeatureSelectionConfig as Config
+from ErrorDetector.preprocessing.data_preprocessing import WindowGenerator
 import numpy as np
-import matplotlib.pyplot as plt
-
-
-class Evaluator:
-    # class for defining the evaluation metrics
-    def __init__(self, train_X, test_X, train_Y, test_Y, solution=None, classifier=None, draw_confusion_matrix=False,
-                 average="weighted"):
-        self.solution = solution
-        if self.solution is None:
-            self.solution = np.ones(train_X.shape[1])
-
-        # store the train and test features and labels
-        cols = np.flatnonzero(self.solution)
-        self.X_train = train_X[:, cols]
-        self.X_test = test_X[:, cols]
-        self.y_train = train_Y
-        self.y_test = test_Y
-
-        # set the classifier type
-        self.classifier = classifier
-        if self.classifier.lower() == 'knn':
-            self.clf = KNN()
-        elif self.classifier.lower() == 'rf':
-            self.clf = RF()
-        elif self.classifier.lower() == 'svm':
-            self.clf = SVM()
-        else:
-            self.clf = None
-            print('\n[Error!] We don\'t currently support {} classifier...\n'.format(classifier))
-            exit(0)
-
-        # get the unique labels
-        self.n_labels = len(np.unique(train_Y))
-        self.average = "binary" if self.n_labels == 2 else average
-        self.draw_confusion_matrix = draw_confusion_matrix
-
-    def get_metrics(self):
-        # Train on training set
-        self.clf.fit(self.X_train, self.y_train)
-
-        # Test and get accuracy on testing set
-        y_pred = self.clf.predict(self.X_test)
-        accuracy = accuracy_score(self.y_test, y_pred)
-        precision = precision_score(self.y_test, y_pred, average=self.average, zero_division=0)
-        recall = recall_score(self.y_test, y_pred, average=self.average, zero_division=0)
-        f1 = f1_score(self.y_test, y_pred, average=self.average)
-
-        # Save confusion matrix
-        if self.draw_confusion_matrix:
-            plot_confusion_matrix(self.clf, self.X_test, self.y_test)
-            plt.savefig('confusion_matrix.png')
-            plt.title('Confusion Matrix')
-            plt.show()
-
-        return {
-            "accuracy": accuracy,
-            "precision": precision,
-            "recall": recall,
-            "f1": f1
-        }
+import pandas as pd
 
 
 class DynamicEvaluator:
-    # class for defining the evaluation metrics
-    def __init__(self, train_x, test_x, train_y, test_y, solution=None, forecaster=None):
+    """
+    This class is used to dynamically generate a neural network based on the solution provided by the optimizer.
+    The solution is a binary array of size equal to the number of features in the dataset.
+    The solution is used to select the features that will be used to train the neural network. That is:
+    - if the solution[i] = 1, then the feature at index i will be used to train the neural network
+    - if the solution[i] = 0, then the feature at index i will not be used to train the neural network
+
+    This class also evaluates and provides performance metrics for the selected features using method `get_metrics()`
+
+    This class houses the following methods:
+        - `get_selected_feature_list(data_frame: pd.DataFrame)` - Returns a list of names of selected features
+        - `get_trained_forecaster()` - Returns a trained forecaster
+        - `get_metrics()` - Returns the performance metrics for the selected features
+
+    """
+    def __init__(self, norm_train_df, norm_test_df, norm_val_df, solution=None):
+        self.forecaster = None
         self.solution = solution
         if self.solution is None:
-            self.solution = np.ones(train_x.shape[2])
+            self.solution = np.ones(len(norm_train_df.columns))
 
         # store the train and test features and labels
-        cols = np.flatnonzero(self.solution)
-        self.X_train = train_x[:, :, cols]
-        self.X_test = test_x[:, :, cols]
-        self.y_train = train_y
-        self.y_test = test_y
+        self.selected_features_indexes = np.flatnonzero(self.solution)
+        self.n_selected_features = len(self.selected_features_indexes)
+        self.selected_features_names = self.get_selected_feature_list(norm_train_df)
 
-        # set the classifier type
-        self.forecaster = forecaster
-        if self.forecaster is None:
-            print('\n[Error!] Please provide the forecaster to the Evaluator...\n')
-            raise Exception
+        self.dataset_window = WindowGenerator(
+            input_width=Config.INPUT_WIDTH, label_width=Config.LABEL_WIDTH, shift=Config.SHIFT,
+            train_df=norm_train_df, val_df=norm_val_df, test_df=norm_test_df,
+            label_columns=self.selected_features_names,
+            input_columns=self.selected_features_names)
 
-        # get the unique labels
-        self.n_labels = len(np.unique(train_y))
+    def get_selected_feature_list(self, data_frame: pd.DataFrame):
+        """
+        Returns a list of names of selected features
+        Args:
+            data_frame: A pandas data frame containing all the features
+
+        Returns:
+            a list of names of selected features
+        """
+        # get the selected features
+        selected_features = data_frame.columns[self.selected_col_indexes]
+        return list(selected_features)
+
+    def get_trained_forecaster(self):
+        """
+        This method builds a forecaster dynamically using AbstractForecaster based of number of selected features.
+        Returns a trained forecaster
+
+        Returns:
+            A trained forecaster
+        """
+        # create model
+        forecaster = AbstractForecaster(num_features=self.n_selected_features)
+        _, _ = forecaster.train_model(self.dataset_window)
+        return forecaster
+
+    def get_metrics(self):
+        """
+        This method evaluates the performance of the selected features using the trained forecaster.
+        Returns a list of performance metrics for the selected features.
+
+        Returns:
+            A list of performance metrics
+        """
+        # Train on training set
+        forecaster = self.get_trained_forecaster()
+        y_true, y_pred = forecaster.get_true_and_predicted_values(self.dataset_window.test)
+        performance_metrics = forecaster.get_model_performance_metrics(y_true, y_pred)
+        return performance_metrics
