@@ -95,7 +95,7 @@ class AbstractForecaster:
         return accuracy
 
     @staticmethod
-    def get_model_performance_metrics(y_true, y_pred, required_metrics: list = ['mse', 'mae', 'rmse', 'mape']):
+    def get_model_performance_metrics(y_true, y_pred, required_metrics: list = ['mse', 'mae', 'rmse', 'mape']) -> dict:
         """Get the performance metrics of the model."""
         obj_metric = RegressionMetric(y_true.flatten(), y_pred.flatten())
         # metrics_dict = obj_metric.get_metrics_by_dict({
@@ -111,9 +111,9 @@ class AbstractForecaster:
         # metrics_dict = obj_metric.get_metrics_by_list_names(required_metrics)
         # metrics_dict = {k: round(v, 4) for k, v in metrics_dict.items()}
         performance_metrics_dict = obj_metric.get_metrics_by_dict({key: {'decimal': 4}
-                                                                                 for key in required_metrics})
+                                                                   for key in required_metrics})
 
-        return [performance_metrics_dict.get(key) for key in required_metrics]
+        return performance_metrics_dict
 
     def get_true_and_predicted_values(self, test_dataset):
         y_pred = self.model.predict(test_dataset)

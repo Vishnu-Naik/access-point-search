@@ -35,7 +35,6 @@ def test_abstract_forecaster(get_window_data):
 
     performance_metrics = forecaster.get_model_performance_metrics(
         y_true, y_pred, required_metrics=['mse', 'mae', 'rmse', 'mape'])
-    assert performance_metrics[0] is not None
-    assert performance_metrics[1] is not None
-    assert performance_metrics[2] is not None
-    assert performance_metrics[3] is not None
+    assert type(performance_metrics) is dict
+    assert list(performance_metrics.keys()) == ['mse', 'mae', 'rmse', 'mape']
+
