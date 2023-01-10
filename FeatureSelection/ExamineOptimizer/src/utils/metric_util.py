@@ -17,10 +17,12 @@ class DynamicEvaluator:
     This class also evaluates and provides performance metrics for the selected features using method `get_metrics()`
 
     This class houses the following methods:
-        - `get_selected_feature_list(data_frame: pd.DataFrame)` - Returns a list of names of selected features
-        - `get_trained_forecaster()` - Returns a trained forecaster
-        - `get_metrics()` - Returns the performance metrics for the selected features
 
+    Public method:
+        - `get_metrics()` - Returns the performance metrics for the selected features
+    Abstract methods:
+        - `_get_selected_feature_list(data_frame: pd.DataFrame)` - Returns a list of names of selected features
+        - `_get_trained_forecaster()` - Returns a trained forecaster
     """
     def __init__(self, norm_train_df, norm_test_df, norm_val_df, solution=None):
         self.forecaster = None
@@ -31,7 +33,7 @@ class DynamicEvaluator:
         # store the train and test features and labels
         self.selected_features_indexes = np.flatnonzero(self.solution)
         self.n_selected_features = len(self.selected_features_indexes)
-        self.selected_features_names = self.get_selected_feature_list(norm_train_df)
+        self.selected_features_names = self._get_selected_feature_list(norm_train_df)
 
         self.dataset_window = WindowGenerator(
             input_width=Config.INPUT_WIDTH, label_width=Config.LABEL_WIDTH, shift=Config.SHIFT,
@@ -39,7 +41,7 @@ class DynamicEvaluator:
             label_columns=self.selected_features_names,
             input_columns=self.selected_features_names)
 
-    def get_selected_feature_list(self, data_frame: pd.DataFrame):
+    def _get_selected_feature_list(self, data_frame: pd.DataFrame):
         """
         Returns a list of names of selected features
         Args:
@@ -49,10 +51,10 @@ class DynamicEvaluator:
             a list of names of selected features
         """
         # get the selected features
-        selected_features = data_frame.columns[self.selected_col_indexes]
+        selected_features = data_frame.columns[self.selected_features_indexes]
         return list(selected_features)
 
-    def get_trained_forecaster(self):
+    def _get_trained_forecaster(self):
         """
         This method builds a forecaster dynamically using AbstractForecaster based of number of selected features.
         Returns a trained forecaster
@@ -74,7 +76,7 @@ class DynamicEvaluator:
             A list of performance metrics
         """
         # Train on training set
-        forecaster = self.get_trained_forecaster()
+        forecaster = self._get_trained_forecaster()
         y_true, y_pred = forecaster.get_true_and_predicted_values(self.dataset_window.test)
         performance_metrics = forecaster.get_model_performance_metrics(y_true, y_pred)
         return performance_metrics

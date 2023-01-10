@@ -346,13 +346,13 @@ def load_data(file_path: str, plot: bool = False) -> pd.DataFrame:
     FileNotFoundError
     """
 
-    file_extension = file_path.split('.')[-1]
+    file_extension = Path(file_path).suffix
     pd_data_frame = pd.DataFrame()
 
     try:
-        if file_extension == 'csv':
+        if file_extension == '.csv':
             pd_data_frame = pd.read_csv(file_path)
-        elif file_extension == 'xlsx':
+        elif file_extension == '.xlsx':
             pd_data_frame = pd.read_excel(file_path)
     except FileNotFoundError:
         logging.error(f'File not found at path: {file_path}\n')
