@@ -32,11 +32,11 @@ DATA_REL_PATH = '../../data/Engine_Timing_sim_data_without_time_12_01_22_12_2022
 DATA_ABS_PATH = CUR_DIR / DATA_REL_PATH
 
 
-def amend_position(position, lower, upper):
-    pos = np.clip(position, lower, upper).astype(int)
-    if np.all((pos == 0)):
-        pos[np.random.randint(0, len(pos))] = 1
-    return pos
+# def amend_position(position, lower, upper):
+#     pos = np.clip(position, lower, upper).astype(int)
+#     if np.all((pos == 0)):
+#         pos[np.random.randint(0, len(pos))] = 1
+#     return pos
 
 
 class FeatureSelection:
@@ -74,7 +74,7 @@ class FeatureSelection:
             "ub": upper_bound,
             "minmax": Config.MIN_MAX_PROBLEM,
             "obj_weights": Config.OBJ_WEIGHTS,
-            "amend_position": amend_position,
+            "amend_position": self.amend_position,
         }
 
     # def encode_column_names(self):
@@ -91,12 +91,13 @@ class FeatureSelection:
         performance_metrics_values = list(performance_metrics.values())
         return performance_metrics_values
 
-    # def amend_position(position, lower, upper):
-    #     # bounded_pos = np.clip(position, lower, upper)
-    #     new_pos = [x if np.random.rand() >= x else np.logical_not(x) for x in position]
-    #     if np.all((new_pos == 0)):
-    #         new_pos[np.random.randint(0, len(new_pos))] = 1
-    #     return np.array(new_pos)
+    @staticmethod
+    def amend_position(position, lower, upper):
+        # bounded_pos = np.clip(position, lower, upper)
+        new_pos = [0 if np.random.rand() >= x else 1 for x in position]
+        if np.all((new_pos == 0)):
+            new_pos[np.random.randint(0, len(new_pos))] = 1
+        return np.array(new_pos)
 
     # def decode_solution(self, solution):
     #     # solution: is a vector.
