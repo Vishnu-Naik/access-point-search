@@ -18,8 +18,10 @@ from metric_util import Evaluator
 def amend_position(position, lower, upper):
     # bounded_pos = np.clip(position, lower, upper)
     new_pos = [x if np.random.rand() >= x else np.logical_not(x) for x in position]
+    new_pos = np.clip(new_pos, lower, upper).astype(int)
     if np.all((new_pos == 0)):
         new_pos[np.random.randint(0, len(new_pos))] = 1
+    # new_pos = np.clip(new_pos, lower, upper).astype(int)
     return np.array(new_pos)
 
 

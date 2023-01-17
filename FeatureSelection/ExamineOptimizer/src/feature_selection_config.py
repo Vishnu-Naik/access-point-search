@@ -6,7 +6,6 @@ class FeatureSelectionConfig:
     CLASSIFIER = "lstm_sequential_model"  # 'lstm_sequential_model', 'lstm_functional_model'
     MIN_MAX_PROBLEM = "min"
     OBJ_WEIGHTS = [1, 0, 0, 0]  # Metrics return: ['mse', 'mae', 'rmse', 'mape']
-    PRINT_ALL = False
     INPUT_WIDTH = 24
     LABEL_WIDTH = 24
     SHIFT = 24

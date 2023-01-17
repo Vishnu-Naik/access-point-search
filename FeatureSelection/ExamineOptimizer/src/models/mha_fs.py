@@ -8,7 +8,8 @@ sys.path.append('D:\STUDY MATERIAL\Masters Study Material\WS2022\Thesis\CodeBase
 
 from mealpy.evolutionary_based import DE
 # from mealpy.swarm_based.GOA import OriginalGOA
-from BinaryGOA.GOA import OriginalGOA
+
+from BinaryGOA.specialized_optimizer.GOA import OriginalGOA
 
 
 from sklearn.model_selection import train_test_split
