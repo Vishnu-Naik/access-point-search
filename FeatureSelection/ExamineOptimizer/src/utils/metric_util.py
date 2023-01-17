@@ -33,7 +33,8 @@ class DynamicEvaluator:
         # store the train and test features and labels
         self.selected_features_indexes = np.flatnonzero(self.solution)
         self.n_selected_features = len(self.selected_features_indexes)
-        self.selected_features_names = self._get_selected_feature_list(norm_train_df)
+        self.selected_features_names = self._get_selected_feature_list(norm_train_df.columns)
+        print(f"Selected features: {self.selected_features_names}")
 
         self.dataset_window = WindowGenerator(
             input_width=Config.INPUT_WIDTH, label_width=Config.LABEL_WIDTH, shift=Config.SHIFT,
@@ -41,17 +42,17 @@ class DynamicEvaluator:
             label_columns=self.selected_features_names,
             input_columns=self.selected_features_names)
 
-    def _get_selected_feature_list(self, data_frame: pd.DataFrame):
+    def _get_selected_feature_list(self, feature_names: list[str]):
         """
         Returns a list of names of selected features
         Args:
-            data_frame: A pandas data frame containing all the features
+            feature_names: A list of names of all features
 
         Returns:
             a list of names of selected features
         """
         # get the selected features
-        selected_features = data_frame.columns[self.selected_features_indexes]
+        selected_features = feature_names[self.selected_features_indexes]
         return list(selected_features)
 
     def _get_trained_forecaster(self):
