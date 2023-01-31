@@ -1,10 +1,12 @@
+import os
 import sys
 import numpy as np
 import pandas as pd
 from pathlib import Path
+from tabulate import tabulate
 
-sys.path.append('D:\\STUDY MATERIAL\\Masters Study Material\\WS2022\\Thesis\\CodeBase\\Git\\FeatureSelection')
-sys.path.append('D:\\STUDY MATERIAL\\Masters Study Material\\WS2022\\Thesis\\CodeBase\\Git\\ErrorDetector')
+sys.path.append('D:\STUDY MATERIAL\Masters Study Material\WS2022\Thesis\CodeBase\AccessPointSearch\FeatureSelection')
+sys.path.append('D:\\STUDY MATERIAL\\Masters Study Material\\WS2022\\Thesis\\CodeBase\\AccessPointSearch\\ErrorDetector')
 
 from FeatureSelection.BinaryGOA.specialized_optimizer.BGOA_S import OriginalBGOAS
 from ErrorDetector.StationarityTest.adf_test import StationaryTester
@@ -16,8 +18,16 @@ from ErrorDetector.preprocessing.data_preprocessing import (
     load_data)
 
 CUR_DIR = Path.cwd()
-DATA_REL_PATH = '../../data/Engine_Timing_sim_data_without_time_12_01_22_12_2022.xlsx'
+DATA_REL_PATH = '../../data/Exo_leg_reading_230120231628.xlsx'
 DATA_ABS_PATH = CUR_DIR / DATA_REL_PATH
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+logging.debug("Starting the program in debug mode")
+
+if not sys.warnoptions:
+    import warnings
+    warnings.simplefilter("ignore")
 
 
 class FeatureSelection:
@@ -66,6 +76,7 @@ class FeatureSelection:
             performance_metrics_values(list[float]): list of performance metrics values in the order
             of Config.OBJ_WEIGHTS
         """
+        logging.debug(f"Obtained Solution: {solution}")
         evaluator = DynamicEvaluator(norm_train_df=self.norm_train_df,
                                      norm_val_df=self.norm_val_df,
                                      norm_test_df=self.norm_test_df,
@@ -77,7 +88,7 @@ class FeatureSelection:
         return performance_metrics_values
 
     @staticmethod
-    def amend_position(position, lower, upper) -> list:
+    def amend_position(position, lower, upper) -> np.ndarray:
         """
         This callback function is used to amend the position of the solution based on requirements.
         This is the main function to be modified to change the behavior of the optimizer.
@@ -99,6 +110,7 @@ class FeatureSelection:
         new_pos = [0 if np.random.rand() >= x else 1 for x in position]
         if np.all((new_pos == 0)):
             new_pos[np.random.randint(0, len(new_pos))] = 1
+        logging.debug(f"Amend Position: {position} -> {np.array(new_pos)}")
         return np.array(new_pos)
 
     @staticmethod
@@ -125,10 +137,19 @@ def main():
         return
     print(f"Data loaded from {DATA_ABS_PATH}...")
     # Stationarity test
+    print(f"Stationarity test Started...")
     stat_tester = StationaryTester()
+    stat_test_result_dict = {
+        'signal_name': [],
+        'stationarity': []
+    }
     for col_name in engine_timing_data_frame.columns:
-        print('=' * 15 + f'Stationary test for {col_name}' + '=' * 15 + '\n')
-        stat_tester.test(engine_timing_data_frame[col_name].to_numpy(), has_trends=True)
+        stat_test_result_dict['signal_name'].append(col_name)
+        # print('=' * 15 + f'Stationary test for {col_name}' + '=' * 15 + '\n')
+        stat_test_result = stat_tester.test(engine_timing_data_frame[col_name].to_numpy(),
+                                            has_trends=True, verbose=False)
+        stat_test_result_dict['stationarity'].append(stat_test_result)
+    print(tabulate(stat_test_result_dict, headers='keys', tablefmt='outline'))
     print('Stationary test finished!!!')
     # Splitting the data
     train_test_val_split = (0.8, 0.1, 0.1)
@@ -140,8 +161,21 @@ def main():
     # 2. Define algorithm and trial
     c_min = 0.00004
     c_max = 1.0
-    epoch = 1
+    epoch = 16
     pop_size = 10
+    objective_metrics = np.array(['mse', 'mae', 'rmse', 'mape'])
+    selected_metrics = objective_metrics[np.flatnonzero(Config.OBJ_WEIGHTS)]
+    parameters_dict = [
+        ["c_min", c_min],
+        ["c_max", c_max],
+        ["Number of Epoch", epoch],
+        ["Population Size", pop_size],
+        ["Number of features", Config.NUM_FEATURES],
+        ["Feature Names", '\n'.join(list(norm_train_df.columns.to_numpy()))],
+        ["Selected objective", selected_metrics],
+    ]
+    headers = ["Parameter Name", "Value"]
+    print(tabulate(parameters_dict, headers, tablefmt='grid'))
     feature_selector = FeatureSelection((norm_train_df, norm_val_df, norm_test_df), epoch=epoch, pop_size=pop_size)
     feature_selector.create_problem()
 

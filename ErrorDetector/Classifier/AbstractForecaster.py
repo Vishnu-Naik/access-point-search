@@ -5,7 +5,7 @@ from permetrics.regression import RegressionMetric
 import time
 import numpy as np
 
-sys.path.append('D:\\STUDY MATERIAL\\Masters Study Material\\WS2022\\Thesis\\CodeBase\\Git')
+sys.path.append('D:\\STUDY MATERIAL\\Masters Study Material\\WS2022\\Thesis\\CodeBase\\AccessPointSearch')
 from ErrorDetector.Classifier.lstm_sequential_model import LSTMSequentialModel
 from ErrorDetector.StationarityTest.adf_test import StationaryTester
 from ErrorDetector.preprocessing.data_preprocessing import (

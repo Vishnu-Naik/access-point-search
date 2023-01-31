@@ -4,7 +4,7 @@
 import tensorflow as tf
 import sys
 
-sys.path.append('D:\\STUDY MATERIAL\\Masters Study Material\\WS2022\\Thesis\\CodeBase\\Git\\ErrorDetector')
+sys.path.append('D:\\STUDY MATERIAL\\Masters Study Material\\WS2022\\Thesis\\CodeBase\\AccessPointSearch\\ErrorDetector')
 
 from StationarityTest.adf_test import StationaryTester
 from preprocessing.data_preprocessing import (
