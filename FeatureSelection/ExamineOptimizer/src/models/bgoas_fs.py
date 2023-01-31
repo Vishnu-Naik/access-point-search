@@ -2,6 +2,7 @@ import sys
 import numpy as np
 import pandas as pd
 from pathlib import Path
+from tabulate import tabulate
 
 sys.path.append('D:\\STUDY MATERIAL\\Masters Study Material\\WS2022\\Thesis\\CodeBase\\Git\\FeatureSelection')
 sys.path.append('D:\\STUDY MATERIAL\\Masters Study Material\\WS2022\\Thesis\\CodeBase\\Git\\ErrorDetector')
@@ -135,10 +136,19 @@ def main():
         return
     print(f"Data loaded from {DATA_ABS_PATH}...")
     # Stationarity test
+    print(f"Stationarity test Started...")
     stat_tester = StationaryTester()
+    stat_test_result_dict = {
+        'signal_name': [],
+        'stationarity': []
+    }
     for col_name in engine_timing_data_frame.columns:
-        print('=' * 15 + f'Stationary test for {col_name}' + '=' * 15 + '\n')
-        stat_tester.test(engine_timing_data_frame[col_name].to_numpy(), has_trends=True)
+        stat_test_result_dict['signal_name'].append(col_name)
+        # print('=' * 15 + f'Stationary test for {col_name}' + '=' * 15 + '\n')
+        stat_test_result = stat_tester.test(engine_timing_data_frame[col_name].to_numpy(),
+                                            has_trends=True, verbose=False)
+        stat_test_result_dict['stationarity'].append(stat_test_result)
+    print(tabulate(stat_test_result_dict, headers='keys', tablefmt='outline'))
     print('Stationary test finished!!!')
     # Splitting the data
     train_test_val_split = (0.8, 0.1, 0.1)
@@ -152,6 +162,19 @@ def main():
     c_max = 1.0
     epoch = 1
     pop_size = 10
+    objective_metrics = np.array(['mse', 'mae', 'rmse', 'mape'])
+    selected_metrics = objective_metrics[np.flatnonzero(Config.OBJ_WEIGHTS)]
+    parameters_dict = [
+        ["c_min", c_min],
+        ["c_max", c_max],
+        ["Number of Epoch", epoch],
+        ["Population Size", pop_size],
+        ["Number of features", Config.NUM_FEATURES],
+        ["Feature Names", '\n'.join(list(norm_train_df.columns.to_numpy()))],
+        ["Selected objective", selected_metrics],
+    ]
+    headers = ["Parameter Name", "Value"]
+    print(tabulate(parameters_dict, headers, tablefmt='grid'))
     feature_selector = FeatureSelection((norm_train_df, norm_val_df, norm_test_df), epoch=epoch, pop_size=pop_size)
     feature_selector.create_problem()
 
