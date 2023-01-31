@@ -43,7 +43,7 @@ class StationaryTester:
         self.adf_autolag = adf_autolag
 
     @staticmethod
-    def adf_test(series, adf_autolag):
+    def adf_test(series, adf_autolag, verbose=False):
         #
         # And if the p-value is still greater than significance level of 0.05 and the ADF statistic is
         # higher than any of the critical values. Clearly, there is no reason to reject the null hypothesis.
@@ -51,44 +51,50 @@ class StationaryTester:
 
         statistic, p_value, n_lags, _, critical_values, _ = adfuller(series, autolag=adf_autolag)
         # Format Output
-        print('*' * 50)
-        print(f'ADF Statistic: {statistic}')
-        print('*' * 50)
-        print(f'p-value: {p_value}')
-        print(f'num lags: {n_lags}')
-        print('Critial Values:')
-        for key, value in critical_values.items():
-            print(f'\t{key} : {value}')
-        print('_' * 50)
-        # The p-value is very less than the significance level of 0.05 and
-        # hence we can reject the null hypothesis and take that the series is stationary.
-        print(f'Result: The series is {"not " if p_value > 0.05 else ""}stationary')
-        print('_' * 50)
+        if verbose:
+            print('*' * 50)
+            print(f'ADF Statistic: {statistic}')
+            print('*' * 50)
+            print(f'p-value: {p_value}')
+            print(f'num lags: {n_lags}')
+            print('Critial Values:')
+            for key, value in critical_values.items():
+                print(f'\t{key} : {value}')
+            print('_' * 50)
+            # The p-value is very less than the significance level of 0.05 and
+            # hence we can reject the null hypothesis and take that the series is stationary.
+            print(f'Result: The series is {"not " if p_value > 0.05 else ""}stationary')
+            print('_' * 50)
+        return p_value < 0.05
 
     @staticmethod
-    def kpss_test(series, **kw):
+    def kpss_test(series, verbose=False, **kw):
         """The KPSS test, short for, Kwiatkowski-Phillips-Schmidt-Shin (KPSS),
         is a type of Unit root test that tests for the stationarity of a given
         series around a deterministic trend."""
 
         statistic, p_value, n_lags, critical_values = kpss(series, **kw)
-        # Format Output
-        print('*' * 50)
-        print(f'KPSS Statistic: {statistic}')
-        print('*' * 50)
-        print(f'p-value: {p_value}')
-        print(f'num lags: {n_lags}')
-        print('Critial Values:')
-        for key, value in critical_values.items():
-            print(f'\t{key} : {value}')
-        print('_' * 50)
-        print(f'Result: The series is {"not " if p_value < 0.05 else ""}stationary')
-        print('_'*50)
+        if verbose:
+            print('*' * 50)
+            print(f'KPSS Statistic: {statistic}')
+            print('*' * 50)
+            print(f'p-value: {p_value}')
+            print(f'num lags: {n_lags}')
+            print('Critial Values:')
+            for key, value in critical_values.items():
+                print(f'\t{key} : {value}')
+            print('_' * 50)
+            print(f'Result: The series is {"not " if p_value < 0.05 else ""}stationary')
+            print('_'*50)
 
-    def test(self, series, has_trends=False):
-        self.adf_test(series, self.adf_autolag)
+        return p_value > 0.05
+
+    def test(self, series, has_trends=False, verbose=False):
+        adf_result = self.adf_test(series, self.adf_autolag, verbose=verbose)
+        kpss_result = True
         if has_trends:
-            self.kpss_test(series, regression='ct')
+            kpss_result = self.kpss_test(series, regression='ct', verbose=verbose)
+        return adf_result and kpss_result
 
 
 def main():
@@ -96,7 +102,7 @@ def main():
     # ## Sine signal
     sine_wave_df = pd.read_csv(CUR_DIR/'data/data_collected_v1.csv', names=['signal1'])
     x_signal = sine_wave_df['signal1'].values
-    StationaryTester.adf_test(x_signal, adf_autolag='AIC')
+    StationaryTester.adf_test(x_signal, adf_autolag='AIC', verbose=True)
     # ## Exo-leg signal
     exo_leg_data_df = pd.read_csv(CUR_DIR/'data/exo_hip_right_2022_12_13-18_02.csv')
     StationaryTester.adf_test(exo_leg_data_df.values, adf_autolag='AIC')
