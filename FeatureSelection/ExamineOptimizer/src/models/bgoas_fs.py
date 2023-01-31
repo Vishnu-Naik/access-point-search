@@ -18,6 +18,14 @@ from ErrorDetector.preprocessing.data_preprocessing import (
 CUR_DIR = Path.cwd()
 DATA_REL_PATH = '../../data/Engine_Timing_sim_data_without_time_12_01_22_12_2022.xlsx'
 DATA_ABS_PATH = CUR_DIR / DATA_REL_PATH
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+logging.debug("Starting the program in debug mode")
+
+if not sys.warnoptions:
+    import warnings
+    warnings.simplefilter("ignore")
 
 
 class FeatureSelection:
@@ -66,6 +74,7 @@ class FeatureSelection:
             performance_metrics_values(list[float]): list of performance metrics values in the order
             of Config.OBJ_WEIGHTS
         """
+        logging.debug(f"Obtained Solution: {solution}")
         evaluator = DynamicEvaluator(norm_train_df=self.norm_train_df,
                                      norm_val_df=self.norm_val_df,
                                      norm_test_df=self.norm_test_df,
@@ -99,6 +108,7 @@ class FeatureSelection:
         new_pos = [0 if np.random.rand() >= x else 1 for x in position]
         if np.all((new_pos == 0)):
             new_pos[np.random.randint(0, len(new_pos))] = 1
+        logging.debug(f"Amend Position: {position} -> {np.array(new_pos)}")
         return np.array(new_pos)
 
     @staticmethod
