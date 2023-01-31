@@ -87,7 +87,7 @@ class FeatureSelection:
         return performance_metrics_values
 
     @staticmethod
-    def amend_position(position, lower, upper) -> list:
+    def amend_position(position, lower, upper) -> np.ndarray:
         """
         This callback function is used to amend the position of the solution based on requirements.
         This is the main function to be modified to change the behavior of the optimizer.
