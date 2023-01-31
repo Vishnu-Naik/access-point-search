@@ -4,8 +4,8 @@ import pandas as pd
 from pathlib import Path
 from tabulate import tabulate
 
-sys.path.append('D:\\STUDY MATERIAL\\Masters Study Material\\WS2022\\Thesis\\CodeBase\\Git\\FeatureSelection')
-sys.path.append('D:\\STUDY MATERIAL\\Masters Study Material\\WS2022\\Thesis\\CodeBase\\Git\\ErrorDetector')
+sys.path.append('D:\STUDY MATERIAL\Masters Study Material\WS2022\Thesis\CodeBase\AccessPointSearch\FeatureSelection')
+sys.path.append('D:\\STUDY MATERIAL\\Masters Study Material\\WS2022\\Thesis\\CodeBase\\AccessPointSearch\\ErrorDetector')
 
 from FeatureSelection.BinaryGOA.specialized_optimizer.BGOA_S import OriginalBGOAS
 from ErrorDetector.StationarityTest.adf_test import StationaryTester
