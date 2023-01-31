@@ -1,3 +1,4 @@
+import os
 import sys
 import numpy as np
 import pandas as pd
@@ -17,7 +18,7 @@ from ErrorDetector.preprocessing.data_preprocessing import (
     load_data)
 
 CUR_DIR = Path.cwd()
-DATA_REL_PATH = '../../data/Engine_Timing_sim_data_without_time_12_01_22_12_2022.xlsx'
+DATA_REL_PATH = '../../data/Exo_leg_reading_230120231628.xlsx'
 DATA_ABS_PATH = CUR_DIR / DATA_REL_PATH
 import logging
 
@@ -160,7 +161,7 @@ def main():
     # 2. Define algorithm and trial
     c_min = 0.00004
     c_max = 1.0
-    epoch = 1
+    epoch = 16
     pop_size = 10
     objective_metrics = np.array(['mse', 'mae', 'rmse', 'mape'])
     selected_metrics = objective_metrics[np.flatnonzero(Config.OBJ_WEIGHTS)]
