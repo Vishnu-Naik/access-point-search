@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 import logging
 
+logger = logging.getLogger('FeatureSelection')
+
 
 class DynamicEvaluator:
     """
@@ -35,7 +37,7 @@ class DynamicEvaluator:
         self.selected_features_indexes = np.flatnonzero(self.solution)
         self.n_selected_features = len(self.selected_features_indexes)
         self.selected_features_names = self._get_selected_feature_list(norm_train_df.columns)
-        logging.debug(f"Selected features indexes: {self.selected_features_indexes}")
+        logger.debug(f"Selected features indexes: {self.selected_features_indexes}")
         print(f"Selected features: {self.selected_features_names}")
 
         self.dataset_window = WindowGenerator(
