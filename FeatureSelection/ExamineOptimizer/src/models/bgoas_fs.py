@@ -18,7 +18,7 @@ from ErrorDetector.preprocessing.data_preprocessing import (
     load_data)
 
 CUR_DIR = Path.cwd()
-DATA_REL_PATH = '../../data/Exo_leg_reading_230120231628.xlsx'
+DATA_REL_PATH = '../../data/Engine_Timing_sim_data_without_time_310120232031.xlsx'
 DATA_ABS_PATH = CUR_DIR / DATA_REL_PATH
 import logging
 
