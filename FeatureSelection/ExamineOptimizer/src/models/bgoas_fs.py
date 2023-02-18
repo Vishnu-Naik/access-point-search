@@ -107,11 +107,11 @@ class FeatureSelection:
             problem
         """
         # bounded_pos = np.clip(position, lower, upper)
-        new_pos = [0 if np.random.rand() >= x else 1 for x in position]
+        new_pos = np.array([0 if np.random.rand() >= x else 1 for x in position])
         if np.all((new_pos == 0)):
             new_pos[np.random.randint(0, len(new_pos))] = 1
-        logging.debug(f"Amend Position: {position} -> {np.array(new_pos)}")
-        return np.array(new_pos)
+        logger.debug(f"Amend Position: {position} -> {np.array(new_pos)}")
+        return new_pos
 
     @staticmethod
     def decode_solution(solution: np.ndarray[int], feature_names: np.ndarray[int]) -> list[str]:
