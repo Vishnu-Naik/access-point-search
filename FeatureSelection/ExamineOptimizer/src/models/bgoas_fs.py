@@ -48,7 +48,7 @@ class FeatureSelection:
     4. decode_solution: This method decodes the solution to get the names of the selected features.
     """
 
-    def __init__(self, norm_dataset: tuple[pd.DataFrame], epoch, pop_size):
+    def __init__(self, norm_dataset: tuple[pd.DataFrame, ...], epoch, pop_size):
         self.norm_train_df, self.norm_val_df, self.norm_test_df = norm_dataset[0], norm_dataset[1], norm_dataset[2]
         self.model = None
         self.n_features = Config.NUM_FEATURES
@@ -142,7 +142,7 @@ def main():
     if engine_timing_data_frame is None:
         print(f"Data loading Failed...")
         raise Exception("Data loading Failed")
-        return
+    
     print(f"Data loaded from {DATA_ABS_PATH}...")
     # Stationarity test
     print(f"Stationarity test Started...")
