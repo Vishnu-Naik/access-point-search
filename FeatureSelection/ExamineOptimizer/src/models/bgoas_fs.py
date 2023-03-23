@@ -18,12 +18,20 @@ from ErrorDetector.preprocessing.data_preprocessing import (
     load_data)
 
 CUR_DIR = Path.cwd()
-DATA_REL_PATH = '../../data/Exo_leg_reading_230120231628.xlsx'
+DATA_REL_PATH = '../../data/Engine_Timing_sim_data_without_time_310120232031.xlsx'
 DATA_ABS_PATH = CUR_DIR / DATA_REL_PATH
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
-logging.debug("Starting the program in debug mode")
+logging_level = logging.DEBUG
+logger = logging.getLogger('FeatureSelection')
+logger.setLevel(logging_level)
+sh = logging.StreamHandler()
+
+logger_format = '%(asctime)s - %(filename)s::%(funcName)s::(line no.:%(lineno)d) - [%(levelname)s] - %(message)s'
+formatter = logging.Formatter(logger_format)
+sh.setFormatter(formatter)
+logger.addHandler(sh)
+logger.debug("Starting the program in debug mode")
 
 if not sys.warnoptions:
     import warnings
@@ -76,7 +84,7 @@ class FeatureSelection:
             performance_metrics_values(list[float]): list of performance metrics values in the order
             of Config.OBJ_WEIGHTS
         """
-        logging.debug(f"Obtained Solution: {solution}")
+        logger.debug(f"Obtained Solution: {solution}")
         evaluator = DynamicEvaluator(norm_train_df=self.norm_train_df,
                                      norm_val_df=self.norm_val_df,
                                      norm_test_df=self.norm_test_df,
@@ -107,11 +115,11 @@ class FeatureSelection:
             problem
         """
         # bounded_pos = np.clip(position, lower, upper)
-        new_pos = [0 if np.random.rand() >= x else 1 for x in position]
+        new_pos = np.array([0 if np.random.rand() >= x else 1 for x in position])
         if np.all((new_pos == 0)):
             new_pos[np.random.randint(0, len(new_pos))] = 1
-        logging.debug(f"Amend Position: {position} -> {np.array(new_pos)}")
-        return np.array(new_pos)
+        logger.debug(f"Amend Position: {position} -> {np.array(new_pos)}")
+        return new_pos
 
     @staticmethod
     def decode_solution(solution: np.ndarray[int], feature_names: np.ndarray[int]) -> list[str]:
