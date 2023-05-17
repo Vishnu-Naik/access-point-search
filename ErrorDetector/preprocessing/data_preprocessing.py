@@ -330,7 +330,7 @@ def load_and_create_dummy_data(file_path: str) -> pd.DataFrame:
     return data_frame
 
 
-def load_data(file_path: str | Path, plot: bool = False) -> pd.DataFrame:
+def load_data(file_path: str or Path, plot: bool = False) -> pd.DataFrame:
     """Loading the data from CSV or Excel file and plotting it and converting it into pandas dataframe
 
     Args:

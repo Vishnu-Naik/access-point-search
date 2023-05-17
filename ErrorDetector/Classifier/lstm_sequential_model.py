@@ -2,17 +2,13 @@
 # coding: utf-8
 
 import tensorflow as tf
-import sys
 
-sys.path.append('D:\\STUDY MATERIAL\\Masters Study Material\\WS2022\\Thesis\\CodeBase\\AccessPointSearch\\ErrorDetector')
-
-from StationarityTest.adf_test import StationaryTester
-from preprocessing.data_preprocessing import (
+from ErrorDetector.StationarityTest.adf_test import StationaryTester
+from ErrorDetector.preprocessing.data_preprocessing import (
     WindowGenerator,
     split_dataset,
     get_normalized_dataset,
     load_data)
-from matplotlib import pyplot as plt
 
 
 class LSTMSequentialModel:
