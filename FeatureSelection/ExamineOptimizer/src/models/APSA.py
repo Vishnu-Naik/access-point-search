@@ -1,16 +1,16 @@
-import os
+
 import sys
 import numpy as np
 import pandas as pd
 from pathlib import Path
 from tabulate import tabulate
-
-sys.path.append('D:\STUDY MATERIAL\Masters Study Material\WS2022\Thesis\CodeBase\AccessPointSearch\FeatureSelection')
-sys.path.append('D:\\STUDY MATERIAL\\Masters Study Material\\WS2022\\Thesis\\CodeBase\\AccessPointSearch\\ErrorDetector')
+import logging
+# sys.path.append('D:\STUDY MATERIAL\Masters Study Material\WS2022\Thesis\CodeBase\AccessPointSearch\FeatureSelection')
+# sys.path.append('D:\\STUDY MATERIAL\\Masters Study Material\\WS2022\\Thesis\\CodeBase\\AccessPointSearch\\ErrorDetector')
 
 from FeatureSelection.BinaryGOA.specialized_optimizer.BGOA_S import OriginalBGOAS
 from ErrorDetector.StationarityTest.adf_test import StationaryTester
-from FeatureSelection.ExamineOptimizer.src.feature_selection_config import FeatureSelectionConfig as Config
+from config import APSAConfig as Config
 from FeatureSelection.ExamineOptimizer.src.utils.metric_util import DynamicEvaluator
 from ErrorDetector.preprocessing.data_preprocessing import (
     split_dataset,
@@ -18,11 +18,10 @@ from ErrorDetector.preprocessing.data_preprocessing import (
     load_data)
 
 CUR_DIR = Path.cwd()
-DATA_REL_PATH = '../../data/Engine_Timing_sim_data_without_time_310120232031.xlsx'
+DATA_REL_PATH = r'../../data/Engine_timing_with_dynamic_setpoints_230320231707.xlsx'
 DATA_ABS_PATH = CUR_DIR / DATA_REL_PATH
-import logging
 
-logging_level = logging.DEBUG
+logging_level = logging.INFO
 logger = logging.getLogger('FeatureSelection')
 logger.setLevel(logging_level)
 sh = logging.StreamHandler()
@@ -142,7 +141,7 @@ def main():
     if engine_timing_data_frame is None:
         print(f"Data loading Failed...")
         raise Exception("Data loading Failed")
-    
+
     print(f"Data loaded from {DATA_ABS_PATH}...")
     # Stationarity test
     print(f"Stationarity test Started...")

@@ -1,11 +1,8 @@
 
 import tensorflow as tf
-import sys
 from permetrics.regression import RegressionMetric
-import time
 import numpy as np
 
-sys.path.append('D:\\STUDY MATERIAL\\Masters Study Material\\WS2022\\Thesis\\CodeBase\\AccessPointSearch')
 from ErrorDetector.Classifier.lstm_sequential_model import LSTMSequentialModel
 from ErrorDetector.StationarityTest.adf_test import StationaryTester
 from ErrorDetector.preprocessing.data_preprocessing import (
@@ -98,18 +95,6 @@ class AbstractForecaster:
     def get_model_performance_metrics(y_true, y_pred, required_metrics: list = ['mse', 'mae', 'rmse', 'mape']) -> dict:
         """Get the performance metrics of the model."""
         obj_metric = RegressionMetric(y_true.flatten(), y_pred.flatten())
-        # metrics_dict = obj_metric.get_metrics_by_dict({
-        #     "RMSE": {"decimal": 4},
-        #     "MAE": {"decimal": 4},
-        #     "MSE": {"decimal": 4},
-        #     # "R2": {"decimal": 4},
-        #     # "MAPE": {"decimal": 4},
-        #     # "SMAPE": {"decimal": 4},
-        #     # "MASE": {"decimal": 4},
-        #     # "NRMSE": {"decimal": 4},
-        # })
-        # metrics_dict = obj_metric.get_metrics_by_list_names(required_metrics)
-        # metrics_dict = {k: round(v, 4) for k, v in metrics_dict.items()}
         performance_metrics_dict = obj_metric.get_metrics_by_dict({key: {'decimal': 4}
                                                                    for key in required_metrics})
 
@@ -141,11 +126,8 @@ def main():
                                              input_width=24, label_width=24, shift=24)
 
     forecaster = AbstractForecaster(num_features=len(engine_timing_data_set.train_df.columns))
-    # forecast_model_history, model = forecaster.train_model(engine_timing_data_set)
-    # forecaster.model.save('D:\\STUDY MATERIAL\\Masters Study Material\\WS2022\\Thesis\\CodeBase\\Git\\'
-    #                       'ErrorDetector\\saved_models\\lstm_sequential_model_'+time.strftime('%Y_%m_%d-%H_%M')+'.h5')
-    forecaster.model = tf.keras.models.load_model('D:\\STUDY MATERIAL\\Masters Study Material\\WS2022\\Thesis\\CodeBase\\Git'
-                                                  '\\ErrorDetector\\saved_models\\lstm_sequential_model_2022_12_26-11_03.h5')
+    # forecaster.model = tf.keras.models.load_model('D:\\STUDY MATERIAL\\Masters Study Material\\WS2022\\Thesis\\CodeBase\\Git'
+    #                                               '\\ErrorDetector\\saved_models\\lstm_sequential_model_2022_12_26-11_03.h5')
     y_true, y_pred = forecaster.get_true_and_predicted_values(engine_timing_data_set.test)
     performance_metrics = forecaster.get_model_performance_metrics(y_true, y_pred)
     print(performance_metrics)

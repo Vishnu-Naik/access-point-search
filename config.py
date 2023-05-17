@@ -1,4 +1,4 @@
-class FeatureSelectionConfig:
+class APSAConfig:
     RANDOM_STATE = 42
 
     DATASET_NAME = "Engine_Timing"

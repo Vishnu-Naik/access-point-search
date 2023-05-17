@@ -1,6 +1,6 @@
 
 from ErrorDetector.Classifier.AbstractForecaster import AbstractForecaster
-from FeatureSelection.ExamineOptimizer.src.feature_selection_config import FeatureSelectionConfig as Config
+from config import APSAConfig as Config
 from ErrorDetector.preprocessing.data_preprocessing import WindowGenerator
 import numpy as np
 import pandas as pd
