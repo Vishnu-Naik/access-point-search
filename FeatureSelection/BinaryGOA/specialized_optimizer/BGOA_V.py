@@ -1,6 +1,6 @@
 
 import numpy as np
-from BinaryGOA.optimizer import Optimizer
+from mealpy.optimizer import Optimizer
 
 
 class OriginalBGOAV(Optimizer):
